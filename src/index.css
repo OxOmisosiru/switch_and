@@ -1,0 +1,147 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { 
+  margin: 0; 
+  height: 100%; 
+  background: #09090b; 
+  color: #f4f4f5;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif; 
+}
+#root { height: 100%; }
+
+/* --- レイアウト全体 --- */
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+header { 
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px; border-bottom: 1px solid #27272a; background: rgba(24,24,27,.7); 
+  min-height: 60px;
+}
+.brand { font-weight: 700; font-size: 18px; }
+.stats { display: flex; align-items: center; gap: 26px; }
+.stat { text-align: center; }
+.stat .lbl { font-size: 10px; color: #71717a; letter-spacing: .08em; text-transform: uppercase; }
+.stat .val { font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 20px; }
+
+main { flex: 1; display: flex; min-height: 0; }
+.left { flex: 1; display: flex; flex-direction: column; padding: 14px; min-width: 0; overflow: auto; justify-content: center; }
+.right { width: 320px; flex-shrink: 0; border-left: 1px solid #27272a; display: flex; flex-direction: column; background: rgba(24,24,27,.4); }
+
+/* 9マスのグリッドレイアウト（既存のものがあれば調整してください） */
+.grid9 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* ボタンの基本デザイン */
+.pbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #18181b; /* ダークグレー */
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  min-height: 90px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 10px;
+}
+
+.pbtn:hover:not(:disabled) {
+  background-color: #27272a;
+}
+
+.pbtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 番号を中央に大きく表示 */
+.pbtn .n {
+  font-size: 32px; /* お好みの大きさに調整してください */
+  font-weight: 700;
+  color: #f4f4f5;
+  font-family: monospace;
+}
+
+/* ★ コンプリート（クリア）時のスタイル */
+.pbtn.cleared {
+  background-color: #10b981; /* 鮮やかな緑 */
+  border-color: #059669;
+}
+
+/* クリア時は数字を黒っぽくして見やすくする */
+.pbtn.cleared .n {
+  color: #064e3b;
+}
+
+/* 非成立テキストの配置 */
+.pbtn .sub {
+  position: absolute;
+  bottom: 8px;
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: bold;
+}
+
+/* --- 画像エリア --- */
+.imgcard { 
+  position: relative; background: transparent; 
+  padding: 0; display: flex; align-items: center; justify-content: center;
+}
+.imgcard .close { 
+  position: absolute; top: 0px; right: 0px; background: rgba(0,0,0,0.6); border: none; 
+  color: #fff; font-size: 28px; cursor: pointer; width: 44px; height: 44px; 
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10;
+}
+.imgcard img { 
+  width: 100%; max-height: 280px; border-radius: 12px; object-fit: contain; 
+}
+
+/* --- 入力エリア --- */
+#answerBox { 
+  height: 64px; border: 1px solid #3f3f46; background: #18181b; border-radius: 12px; padding: 0 16px;
+  display: flex; align-items: center; font-size: 32px; font-family: ui-monospace, monospace; letter-spacing: .03em; margin-bottom: 14px; 
+}
+#answerBox.locked { border-color: #27272a; background: rgba(24,24,27,.5); color: #71717a; }
+#answerBox .ph { color: #3f3f46; font-size: 16px; }
+.caret { display: inline-block; width: 2px; height: 32px; background: #fcd34d; margin-left: 3px; animation: blink 1s steps(2,start) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* --- 五十音キーボード（11列グリッド） --- */
+#kb.disabled { opacity: .45; pointer-events: none; }
+.kbgrid { display: grid; grid-template-columns: repeat(11, 1fr); gap: 6px; }
+.k { height: 48px; border-radius: 8px; border: none; background: #27272a; color: #f4f4f5; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.k:active { background: #f59e0b; color: #09090b; }
+.k.empty { background: transparent; cursor: default; }
+
+.special { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; justify-content: flex-end; }
+.sk { position: relative; height: 48px; min-width: 56px; padding: 0 14px; border-radius: 8px; border: none; background: #27272a; color: #e4e4e7; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.sk:active { background: #f59e0b; color: #09090b; }
+.sk .pv { position: absolute; top: -6px; right: -4px; font-size: 12px; padding: 2px 4px; border-radius: 4px; background: #f59e0b; color: #09090b; font-family: ui-monospace, monospace; }
+.sep { width: 1px; background: #27272a; margin: 0 4px; }
+
+/* --- 右側（履歴・判定ボタン） --- */
+.rhead { padding: 12px 16px; border-bottom: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center; }
+.rhead .t { font-size: 14px; font-weight: 600; } .rhead .s { font-size: 11px; color: #71717a; }
+#histList { flex: 1; overflow: auto; padding: 12px; min-height: 0; }
+.hitem { display: flex; align-items: center; gap: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+.mk { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+.mk-o { color: #ef4444; background: rgba(239,68,68,.12); }
+.mk-x { color: #60a5fa; background: rgba(96,165,250,.12); }
+.mk-r { color: #fca5a5; background: rgba(252,165,165,.12); }
+.hitem .a { flex: 1; font-family: ui-monospace, monospace; font-size: 16px; }
+.rempty { color: #52525b; text-align: center; padding-top: 32px; font-size: 14px; }
+
+.judgewrap { padding: 16px; border-top: 1px solid #27272a; }
+#judge { 
+  width: 100%; height: 80px; border-radius: 16px; border: none; font-weight: 700; font-size: 24px; cursor: pointer;
+  background: #dc2626; color: #fff; box-shadow: 0 8px 24px rgba(153,27,27,.4); 
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+#judge:disabled { background: #27272a; color: #52525b; box-shadow: none; cursor: not-allowed; }
+#judge.locked { background: #27272a; color: #a1a1aa; cursor: wait; }
+#judge .small { font-size: 14px; color: #a1a1aa; }
+#judge .cd { font-size: 28px; color: #fcd34d; font-family: ui-monospace, monospace; }
