@@ -126,7 +126,11 @@ export const Play: React.FC = () => {
       }
 
       // 1. まずDBに保存 (awaitで完了を待つ)
-      await supabase.from("history").insert({ answer, mark, perf: 1, ts: Date.now() });
+      const newEntry = { answer, mark, perf: 1, ts: Date.now() };
+      await supabase.from("history").insert(newEntry);
+      
+      // ★ ここを追加！：送信した履歴を、画面右側のリスト（state）の先頭に即座に追加する
+      setHistory(prev => [newEntry as HistoryEntry, ...prev]);
 
       if (mark === "○") {
         // 2. 成功した場合のみ状態を更新

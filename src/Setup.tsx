@@ -112,7 +112,7 @@ export const Setup: React.FC = () => {
 
   return (
     <div className="wrap" style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h1 style={{ marginBottom: "16px" }}>switch and …</h1>
+      <h1 style={{ marginBottom: "16px" }}>switch and</h1>
 
       <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
         <button onClick={() => setActiveTab('setup')} style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "none", fontSize: "15px", fontWeight: "bold", cursor: "pointer", background: activeTab === 'setup' ? "#00ffff" : "#27272a", color: activeTab === 'setup' ? "#000" : "#a1a1aa" }}>
