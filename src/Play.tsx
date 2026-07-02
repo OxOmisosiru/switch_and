@@ -44,7 +44,7 @@ export const Play: React.FC = () => {
   const valueOf = (g: any) => g.fixed ? g.def : config[g.key as keyof Config];
   const validAt = (g: any) => { 
     if (g.btn === 1 && config.person === 4) return false;
-    if (g.btn === 3 && config.chair === 3) return false;
+    if (g.btn === 4 && config.chair === 3) return false;
     const aArr = ANSWERS[g.key]?.[valueOf(g) as number]; return !!(aArr && aArr.length); 
   };
   
