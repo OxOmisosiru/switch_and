@@ -44,7 +44,14 @@ export const Play: React.FC = () => {
   const valueOf = (g: any) => g.fixed ? g.def : config[g.key as keyof Config];
   const validAt = (g: any) => { 
     if (g.btn === 1 && config.person === 4) return false;
+    if (g.btn === 2 && config.tablet === 99) return false;
+    if (g.btn === 3 && config.desk === 99) return false;
     if (g.btn === 4 && config.chair === 3) return false;
+    if (g.btn === 5 && config.switch === 99) return false;
+    if (g.btn === 6 && config.partition === 99) return false;
+    if (g.btn === 7 && config.stop === 99) return false;
+    if (g.btn === 8 && config.rubik === 99) return false;
+    if (g.btn === 9 && config.arubeki === 99) return false;
     const aArr = ANSWERS[g.key]?.[valueOf(g) as number]; return !!(aArr && aArr.length); 
   };
   
