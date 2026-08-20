@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 import type { Config, HistoryEntry } from './types';
 import { ANSWERS } from './types';
 
-const LOCK_SEC = 15;
+const LOCK_SEC = 10;
 
 const GENRES = [
   { btn: 1, key: "person", label: "", fixed: false, def: 2 },

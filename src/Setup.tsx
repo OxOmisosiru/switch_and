@@ -3,15 +3,15 @@ import { supabase } from './supabase';
 import type { Config, HistoryEntry } from './types';
 
 const VARS = [
-  { btn: 1, key: "person", label: "人の人数", values: [1, 2, 3, 4] },
-  { btn: 2, key: "tablet", label: "タブレットの個数", values: [1] },
-  { btn: 3, key: "desk", label: "机の個数", values: [1] },
-  { btn: 4, key: "chair", label: "椅子の数", values: [2, 3, 4] },
-  { btn: 5, key: "switch", label: "スイッチの個数", values: [1] },
-  { btn: 6, key: "partition", label: "パーテーション", values: [3, 4] },
-  { btn: 7, key: "stop", label: "ストップマークの個数", values: [8] },
-  { btn: 8, key: "rubik", label: "ルービックキューブ", values: [0, 1] },
-  { btn: 9, key: "arubeki", label: "スギちゃん", values: [0, 1] },
+  { btn: 1, key: "person", label: "人の人数", values: [1, 2, 3, 4, 99] },
+  { btn: 2, key: "tablet", label: "タブレットの個数", values: [1, 99] },
+  { btn: 3, key: "desk", label: "机の個数", values: [1, 99] },
+  { btn: 4, key: "chair", label: "椅子の数", values: [2, 3, 4, 99] },
+  { btn: 5, key: "switch", label: "スイッチの個数", values: [1, 99] },
+  { btn: 6, key: "partition", label: "パーテーション", values: [3, 4, 99] },
+  { btn: 7, key: "stop", label: "ストップマークの個数", values: [8, 99] },
+  { btn: 8, key: "rubik", label: "ルービックキューブ", values: [0, 1, 99] },
+  { btn: 9, key: "arubeki", label: "スギちゃん", values: [0, 1, 99] },
 ];
 
 export const Setup: React.FC = () => {
