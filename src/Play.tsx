@@ -3,6 +3,10 @@ import { supabase } from './supabase';
 import type { Config, HistoryEntry } from './types';
 import { ANSWERS } from './types';
 
+const audioRef = useRef<HTMLAudioElement | null>(null);
+audioRef.current = new Audio("/switch_and_countdown.mp3");
+audioRef.current.volume = 1;
+
 const LOCK_SEC = 10;
 
 const GENRES = [
@@ -82,23 +86,93 @@ export const Play: React.FC = () => {
       if (data) setHistory(data as HistoryEntry[]);
     });
 
-    const channel = supabase.channel("play-session")
-    // ① 既存の status（点数）の監視
-    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "status", filter: "id=eq.1" }, (payload) => {
-      const row = payload.new as { cumulative?: number; achieved?: string[] };
-      if (row) {
-        if (typeof row.cumulative === "number") setCumulative(row.cumulative);
-        if (Array.isArray(row.achieved)) setAchieved(row.achieved);
+    const channel = supabase
+    .channel("play-session")
+
+    // status監視
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "status",
+        filter: "id=eq.1",
+      },
+      (payload) => {
+        const row = payload.new as {
+          cumulative?: number;
+          achieved?: string[];
+        };
+
+        if (row) {
+          if (typeof row.cumulative === "number") {
+            setCumulative(row.cumulative);
+          }
+
+          if (Array.isArray(row.achieved)) {
+            setAchieved(row.achieved);
+          }
+        }
       }
-    })
-    // ② ★新規追加：settings（設定）の監視
-    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "settings", filter: "id=eq.1" }, (payload) => {
-      const row = payload.new as { config?: Config };
-      if (row?.config) {
-        console.log("🔄 新しい設定を受信しました:", row.config);
-        setConfig(row.config); // ここで Play 画面の設定が瞬時に切り替わります
+    )
+
+    // settings監視
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "settings",
+        filter: "id=eq.1",
+      },
+      (payload) => {
+        const row = payload.new as { config?: Config };
+
+        if (row?.config) {
+          setConfig(row.config);
+        }
       }
-    })
+    )
+
+    // ★ 音楽操作監視
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "music_state",
+        filter: "id=eq.1",
+      },
+      (payload) => {
+        const row = payload.new as {
+          command?: string;
+          updated_at?: number;
+        };
+
+        if (!row.command) return;
+
+        if (!audioRef.current) {
+          audioRef.current = new Audio("/music.mp3");
+          audioRef.current.loop = true;
+        }
+
+        if (row.command === "play") {
+          audioRef.current.play().catch((error) => {
+            console.error("音楽再生に失敗:", error);
+          });
+        }
+
+        if (row.command === "reset") {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+
+        if (row.command === "stop") {
+          audioRef.current.pause();
+        }
+      }
+    )
+
     .subscribe();
 
     return () => { supabase.removeChannel(channel); };

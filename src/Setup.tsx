@@ -20,9 +20,6 @@ export const Setup: React.FC = () => {
   const [cfg, setCfg] = useState<Config>({ person: 2, tablet: 1, desk: 1, chair: 2, switch: 1, partition: 4, stop: 8, rubik: 1, arubeki: 0 });
   const [toast, setToast] = useState("");
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
   const [cum, setCum] = useState(0);
   const [items, setItems] = useState<HistoryEntry[]>([]);
   const [pins, setPins] = useState<string[]>([]);
@@ -64,33 +61,32 @@ export const Setup: React.FC = () => {
     setTimeout(() => setToast(""), 1600);
   };
 
-  const toggleMusic = async () => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio('/switch_and_countdown.wav');
-      audioRef.current.loop = true;
-    }
+  const playMusic = async () => {
+    const { error } = await supabase
+      .from('music_state')
+      .update({
+        command: 'play',
+        updated_at: Date.now(),
+      })
+      .eq('id', 1);
 
-    if (audioRef.current.paused) {
-      try {
-        await audioRef.current.play();
-        setIsPlaying(true);
-      } catch (error) {
-        console.error("音楽の再生に失敗しました:", error);
-      }
-    } else {
-      audioRef.current.pause();
-      setIsPlaying(false);
+    if (error) {
+      console.error('音楽再生指示に失敗:', error);
     }
   };
 
-  const resetMusic = () => {
-    if (!audioRef.current) {
-      return;
-    }
+  const resetMusic = async () => {
+    const { error } = await supabase
+      .from('music_state')
+      .update({
+        command: 'reset',
+        updated_at: Date.now(),
+      })
+      .eq('id', 1);
 
-    audioRef.current.pause();
-    audioRef.current.currentTime = 0;
-    setIsPlaying(false);
+    if (error) {
+      console.error('音楽リセット指示に失敗:', error);
+    }
   };
 
   useEffect(() => {
@@ -163,19 +159,19 @@ export const Setup: React.FC = () => {
         }}
       >
         <button
-          onClick={toggleMusic}
+          onClick={playMusic}
           style={{
             flex: 1,
             padding: "12px",
             borderRadius: "8px",
             border: "none",
-            background: "#00ffff",
+            background: "#ff00ff",
             color: "#000",
             fontWeight: "bold",
             cursor: "pointer",
           }}
         >
-          {isPlaying ? "音楽停止" : "音楽再生"}
+          音楽再生
         </button>
 
         <button
@@ -191,7 +187,7 @@ export const Setup: React.FC = () => {
             cursor: "pointer",
           }}
         >
-          リセット
+          音楽リセット
         </button>
       </div>
 
