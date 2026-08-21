@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from './supabase';
 import type { Config, HistoryEntry } from './types';
 
@@ -19,6 +19,9 @@ export const Setup: React.FC = () => {
 
   const [cfg, setCfg] = useState<Config>({ person: 2, tablet: 1, desk: 1, chair: 2, switch: 1, partition: 4, stop: 8, rubik: 1, arubeki: 0 });
   const [toast, setToast] = useState("");
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const [cum, setCum] = useState(0);
   const [items, setItems] = useState<HistoryEntry[]>([]);
@@ -59,6 +62,35 @@ export const Setup: React.FC = () => {
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(""), 1600);
+  };
+
+  const toggleMusic = async () => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/music.mp3');
+      audioRef.current.loop = true;
+    }
+
+    if (audioRef.current.paused) {
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (error) {
+        console.error("音楽の再生に失敗しました:", error);
+      }
+    } else {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const resetMusic = () => {
+    if (!audioRef.current) {
+      return;
+    }
+
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    setIsPlaying(false);
   };
 
   useEffect(() => {
@@ -120,6 +152,46 @@ export const Setup: React.FC = () => {
         </button>
         <button onClick={() => setActiveTab('history')} style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "none", fontSize: "15px", fontWeight: "bold", cursor: "pointer", background: activeTab === 'history' ? "#00ffff" : "#27272a", color: activeTab === 'history' ? "#000" : "#a1a1aa" }}>
           履歴・状況
+        </button>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "8px",
+          marginBottom: "20px",
+        }}
+      >
+        <button
+          onClick={toggleMusic}
+          style={{
+            flex: 1,
+            padding: "12px",
+            borderRadius: "8px",
+            border: "none",
+            background: "#00ffff",
+            color: "#000",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          {isPlaying ? "音楽停止" : "音楽再生"}
+        </button>
+
+        <button
+          onClick={resetMusic}
+          style={{
+            flex: 1,
+            padding: "12px",
+            borderRadius: "8px",
+            border: "1px solid #3f3f46",
+            background: "#27272a",
+            color: "#fff",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          リセット
         </button>
       </div>
 
