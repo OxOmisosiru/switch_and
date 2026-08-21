@@ -34,8 +34,7 @@ const SMALL: Record<string, string> = { あ: "ぁ", い: "ぃ", う: "ぅ", え:
 
 export const Play: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  audioRef.current = new Audio("/switch_and_countdown.mp3");
-  audioRef.current.volume = 1;
+
   const [config, setConfig] = useState<Config>({ person: 2, tablet:1, desk: 1, chair: 2, switch:1, partition: 4, stop: 8, rubik: 1, arubeki: 0 });
   const [cumulative, setCumulative] = useState(0);
   const [achieved, setAchieved] = useState<string[]>([]);
@@ -70,6 +69,22 @@ export const Play: React.FC = () => {
     if (allPossibleAnswers.length === 0) return false;
     return allPossibleAnswers.every(ans => achieved.includes(ans));
   };
+
+  useEffect(() => {
+    const audio = new Audio("/switch_and_countdown.mp3");
+
+    audio.loop = true;
+    audio.volume = 1;
+    audio.preload = "auto";
+
+    audioRef.current = audio;
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      audioRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     supabase.from("settings").select("*").eq("id", 1).single().then(({ data }) => {
@@ -154,32 +169,32 @@ export const Play: React.FC = () => {
           table: "music_state",
           filter: "id=eq.1",
         },
-        (payload) => {
+        async (payload) => {
           const row = payload.new as {
             command?: string;
           };
 
-          if (!row.command) return;
-
-          if (!audioRef.current) {
-            audioRef.current = new Audio("/switch_and_countdown.mp3");
-            audioRef.current.loop = true;
-            audioRef.current.volume = 1;
-          }
+          if (!row.command || !audioRef.current) return;
 
           if (row.command === "play") {
-            audioRef.current.play().catch((error) => {
-              console.error("音楽再生に失敗しました:", error);
-            });
+            try {
+              await audioRef.current.play();
+              console.log("音楽を再生しました");
+            } catch (error) {
+              console.error("ブラウザに音楽再生を拒否されました:", error);
+            }
           }
 
           if (row.command === "reset") {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
+            console.log("音楽をリセットしました");
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("play-music:", status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
