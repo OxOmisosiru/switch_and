@@ -3,6 +3,32 @@ import { supabase } from './supabase';
 import type { HistoryEntry, Config } from './types';
 import { ANSWERS } from './types';
 
+const CONFIG_MESSAGES: Record<string, string> = {
+  "person:1": "ここに person:1 の文章",
+  "person:2": "ここに person:2 の文章",
+  "person:3": "ここに person:3 の文章",
+
+  "tablet:1": "ここに tablet:1 の文章",
+
+  "desk:1": "ここに desk:1 の文章",
+
+  "chair:2": "ここに chair:2 の文章",
+  "chair:4": "ここに chair:4 の文章",
+
+  "switch:1": "ここに switch:1 の文章",
+
+  "partition:3": "ここに partition:3 の文章",
+  "partition:4": "ここに partition:4 の文章",
+
+  "stop:8": "ここに stop:8 の文章",
+
+  "rubik:0": "ここに rubik:0 の文章",
+  "rubik:1": "ここに rubik:1 の文章",
+
+  "arubeki:0": "ここに arubeki:0 の文章",
+  "arubeki:1": "ここに arubeki:1 の文章",
+};
+
 export const History: React.FC = () => {
   const [cum, setCum] = useState(0);
   const [items, setItems] = useState<HistoryEntry[]>([]);
@@ -53,46 +79,8 @@ export const History: React.FC = () => {
         setConfig(settingsData.config as Config);
       }
 
-      // history
-      const { data: historyData } =
-        await supabase
-          .from('history')
-          .select('*')
-          .order('ts', { ascending: false })
-          .limit(50);
-
-      if (historyData) {
-        setItems(historyData as HistoryEntry[]);
-      }
-
     };
     loadData();
-
-    const CONFIG_MESSAGES: Record<string, string> = {
-      "person:1": "ここに person:1 の文章",
-      "person:2": "ここに person:2 の文章",
-      "person:3": "ここに person:3 の文章",
-
-      "tablet:1": "ここに tablet:1 の文章",
-
-      "desk:1": "ここに desk:1 の文章",
-
-      "chair:2": "ここに chair:2 の文章",
-      "chair:4": "ここに chair:4 の文章",
-
-      "switch:1": "ここに switch:1 の文章",
-
-      "partition:3": "ここに partition:3 の文章",
-      "partition:4": "ここに partition:4 の文章",
-
-      "stop:8": "ここに stop:8 の文章",
-
-      "rubik:0": "ここに rubik:0 の文章",
-      "rubik:1": "ここに rubik:1 の文章",
-
-      "arubeki:0": "ここに arubeki:0 の文章",
-      "arubeki:1": "ここに arubeki:1 の文章",
-    };
 
     // 2. リアルタイム購読（チャンネル名を変更し、より堅牢に）
     const channel = supabase
