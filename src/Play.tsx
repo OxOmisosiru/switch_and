@@ -3,9 +3,7 @@ import { supabase } from './supabase';
 import type { Config, HistoryEntry } from './types';
 import { ANSWERS } from './types';
 
-const audioRef = useRef<HTMLAudioElement | null>(null);
-audioRef.current = new Audio("/switch_and_countdown.mp3");
-audioRef.current.volume = 1;
+
 
 const LOCK_SEC = 10;
 
@@ -35,6 +33,9 @@ const HANDAKUTEN: Record<string, string> = { は: "ぱ", ひ: "ぴ", ふ: "ぷ",
 const SMALL: Record<string, string> = { あ: "ぁ", い: "ぃ", う: "ぅ", え: "ぇ", お: "ぉ", つ: "っ", や: "ゃ", ゆ: "ゅ", よ: "ょ", わ: "ゎ" };
 
 export const Play: React.FC = () => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  audioRef.current = new Audio("/switch_and_countdown.mp3");
+  audioRef.current.volume = 1;
   const [config, setConfig] = useState<Config>({ person: 2, tablet:1, desk: 1, chair: 2, switch:1, partition: 4, stop: 8, rubik: 1, arubeki: 0 });
   const [cumulative, setCumulative] = useState(0);
   const [achieved, setAchieved] = useState<string[]>([]);
@@ -140,6 +141,49 @@ export const Play: React.FC = () => {
   return () => {
     supabase.removeChannel(channel);
   };
+  }, []);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("play-music")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "music_state",
+          filter: "id=eq.1",
+        },
+        (payload) => {
+          const row = payload.new as {
+            command?: string;
+          };
+
+          if (!row.command) return;
+
+          if (!audioRef.current) {
+            audioRef.current = new Audio("/switch_and_countdown.mp3");
+            audioRef.current.loop = true;
+            audioRef.current.volume = 1;
+          }
+
+          if (row.command === "play") {
+            audioRef.current.play().catch((error) => {
+              console.error("音楽再生に失敗しました:", error);
+            });
+          }
+
+          if (row.command === "reset") {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
