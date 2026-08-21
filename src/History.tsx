@@ -116,6 +116,18 @@ export const History: React.FC = () => {
     "arubeki",
   ] as const;
 
+  const CONFIG_INFO = [
+    { key: "person", btn: 1 },
+    { key: "tablet", btn: 2 },
+    { key: "desk", btn: 3 },
+    { key: "chair", btn: 4 },
+    { key: "switch", btn: 5 },
+    { key: "partition", btn: 6 },
+    { key: "stop", btn: 7 },
+    { key: "rubik", btn: 8 },
+    { key: "arubeki", btn: 9 },
+] as const;
+
   const CONFIG_ANSWER_KEYS: Record<string, string> = {
     switch: "switchg",
     stop: "stopmark",
@@ -249,13 +261,16 @@ export const History: React.FC = () => {
           {activeTab === 'message' && (
             <div>
 
-              {CONFIG_KEYS.map((key) => {
+              {CONFIG_INFO.map(({key, btn}) => {
                 const status = getConfigStatus(key);
 
-                // 正解していないものは何も表示しない
+                // 正解していない問題は表示しない
                 if (!status.cleared) {
                   return null;
                 }
+
+                const imagePath =
+                  `/images/puzzle_${String(btn).padStart(2, "0")}_${config[key]}.png`;
 
                 return (
                   <div
@@ -268,7 +283,24 @@ export const History: React.FC = () => {
                       marginBottom: "12px",
                     }}
                   >
+                    {/* 問題画像 */}
+                    <img
+                      src={imagePath}
+                      alt={`${key} の問題`}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        maxWidth: "500px",
+                        margin: "0 auto 16px",
+                        borderRadius: "10px",
+                        objectFit: "contain",
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
 
+                    {/* 解説 */}
                     <div
                       style={{
                         fontSize: "17px",
@@ -280,6 +312,7 @@ export const History: React.FC = () => {
                     </div>
                   </div>
                 );
+
               })}
             </div>
           )}
