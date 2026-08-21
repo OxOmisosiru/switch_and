@@ -62,31 +62,67 @@ export const Setup: React.FC = () => {
   };
 
   const playMusic = async () => {
-    const { error } = await supabase
-      .from('music_state')
+    console.log("音楽再生ボタンを押しました");
+
+    const { data, error } = await supabase
+      .from("music_state")
       .update({
-        command: 'play',
+        command: "play",
         updated_at: Date.now(),
       })
-      .eq('id', 1);
+      .eq("id", 1)
+      .select();
+
+    console.log("music_state 更新結果:", {
+      data,
+      error,
+    });
 
     if (error) {
-      console.error('音楽再生指示に失敗:', error);
+      console.error("音楽再生指示に失敗:", error);
+      showToast(`音楽再生失敗: ${error.message}`);
+      return;
     }
+
+    if (!data || data.length === 0) {
+      console.error("music_state の id=1 が見つからないか、UPDATE権限がありません");
+      showToast("music_state を更新できませんでした");
+      return;
+    }
+
+    showToast("音楽再生指示を送信しました");
   };
 
   const resetMusic = async () => {
-    const { error } = await supabase
-      .from('music_state')
+    console.log("音楽リセットボタンを押しました");
+
+    const { data, error } = await supabase
+      .from("music_state")
       .update({
-        command: 'reset',
+        command: "reset",
         updated_at: Date.now(),
       })
-      .eq('id', 1);
+      .eq("id", 1)
+      .select();
+
+    console.log("music_state 更新結果:", {
+      data,
+      error,
+    });
 
     if (error) {
-      console.error('音楽リセット指示に失敗:', error);
+      console.error("音楽リセット指示に失敗:", error);
+      showToast(`音楽リセット失敗: ${error.message}`);
+      return;
     }
+
+    if (!data || data.length === 0) {
+      console.error("music_state の id=1 が見つからないか、UPDATE権限がありません");
+      showToast("music_state を更新できませんでした");
+      return;
+    }
+
+    showToast("音楽をリセットしました");
   };
 
   useEffect(() => {
