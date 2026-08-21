@@ -89,7 +89,7 @@ export const Play: React.FC = () => {
     const channel = supabase
     .channel("play-session")
 
-    // status監視
+    // status
     .on(
       "postgres_changes",
       {
@@ -116,7 +116,7 @@ export const Play: React.FC = () => {
       }
     )
 
-    // settings監視
+    // settings
     .on(
       "postgres_changes",
       {
@@ -129,53 +129,17 @@ export const Play: React.FC = () => {
         const row = payload.new as { config?: Config };
 
         if (row?.config) {
+          console.log("🔄 新しい設定を受信しました:", row.config);
           setConfig(row.config);
-        }
-      }
-    )
-
-    // ★ 音楽操作監視
-    .on(
-      "postgres_changes",
-      {
-        event: "UPDATE",
-        schema: "public",
-        table: "music_state",
-        filter: "id=eq.1",
-      },
-      (payload) => {
-        const row = payload.new as {
-          command?: string;
-          updated_at?: number;
-        };
-
-        if (!row.command) return;
-
-        if (!audioRef.current) {
-          audioRef.current = new Audio("/music.mp3");
-          audioRef.current.loop = true;
-        }
-
-        if (row.command === "play") {
-          audioRef.current.play().catch((error) => {
-            console.error("音楽再生に失敗:", error);
-          });
-        }
-
-        if (row.command === "reset") {
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-        }
-
-        if (row.command === "stop") {
-          audioRef.current.pause();
         }
       }
     )
 
     .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+  return () => {
+    supabase.removeChannel(channel);
+  };
   }, []);
 
   useEffect(() => {
