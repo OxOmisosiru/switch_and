@@ -66,7 +66,7 @@ export const Setup: React.FC = () => {
 
   const toggleMusic = async () => {
     if (!audioRef.current) {
-      audioRef.current = new Audio('/switch_and_countdown.mp3');
+      audioRef.current = new Audio('/switch_and_countdown.wav');
       audioRef.current.loop = true;
     }
 
