@@ -93,6 +93,33 @@ export const Setup: React.FC = () => {
     showToast("音楽再生指示を送信しました");
   };
 
+  const stopMusic = async () => {
+    console.log("音楽停止ボタンを押しました");
+
+    const { data, error } = await supabase
+      .from("music_state")
+      .update({
+        command: "stop",
+        updated_at: Date.now(),
+      })
+      .eq("id", 1)
+      .select("*")
+      .single();
+
+    console.log("音楽停止結果:", {
+      data,
+      error,
+    });
+
+    if (error) {
+      console.error("音楽停止指示に失敗:", error);
+      showToast(`音楽停止失敗: ${error.message}`);
+      return;
+    }
+
+    showToast("音楽を停止しました");
+  };
+
   const resetMusic = async () => {
     console.log("音楽リセットボタンを押しました");
 
@@ -208,6 +235,22 @@ export const Setup: React.FC = () => {
           }}
         >
           音楽再生
+        </button>
+
+        <button
+          onClick={stopMusic}
+          style={{
+            flex: 1,
+            padding: "12px",
+            borderRadius: "8px",
+            border: "none",
+            background: "#f87171",
+            color: "#fff",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          音楽停止
         </button>
 
         <button
