@@ -77,7 +77,25 @@ export const Play: React.FC = () => {
     audio.volume = 1;
     audio.preload = "auto";
 
+    audio.addEventListener("canplay", () => {
+      console.log("🎵 canplay: 音楽を再生できます");
+    });
+
+    audio.addEventListener("canplaythrough", () => {
+      console.log("🎵 canplaythrough: 音楽を十分読み込みました");
+    });
+
+    audio.addEventListener("loadeddata", () => {
+      console.log("🎵 loadeddata");
+    });
+
+    audio.addEventListener("error", () => {
+      console.error("🎵 音楽ファイル読み込みエラー:", audio.error);
+    });
+
     audioRef.current = audio;
+
+    console.log("🎵 Audioを生成:", audio.src);
 
     return () => {
       audio.pause();
@@ -161,6 +179,7 @@ export const Play: React.FC = () => {
   useEffect(() => {
     const channel = supabase
       .channel("play-music")
+
       .on(
         "postgres_changes",
         {
@@ -170,30 +189,58 @@ export const Play: React.FC = () => {
           filter: "id=eq.1",
         },
         async (payload) => {
+          console.log("===== music_state UPDATE受信 =====");
+          console.log("payload:", payload);
+
           const row = payload.new as {
+            id?: number;
             command?: string;
+            updated_at?: number;
           };
 
-          if (!row.command || !audioRef.current) return;
+          console.log("command:", row.command);
+
+          const audio = audioRef.current;
+
+          if (!audio) {
+            console.error("audioRef.current が存在しません");
+            return;
+          }
+
+          console.log("audio:", audio);
+          console.log("audio.src:", audio.src);
+          console.log("audio.readyState:", audio.readyState);
+          console.log("audio.paused:", audio.paused);
 
           if (row.command === "play") {
+            console.log("▶ play を実行");
+
             try {
-              await audioRef.current.play();
-              console.log("音楽を再生しました");
+              await audio.play();
+              console.log("▶ audio.play() 成功");
             } catch (error) {
-              console.error("ブラウザに音楽再生を拒否されました:", error);
+              console.error("▶ audio.play() 失敗:", error);
             }
           }
 
           if (row.command === "reset") {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            console.log("音楽をリセットしました");
+            console.log("⏮ reset を実行");
+
+            audio.pause();
+            audio.currentTime = 0;
+          }
+
+          if (row.command === "stop") {
+            console.log("⏸ stop を実行");
+
+            audio.pause();
           }
         }
       )
+
       .subscribe((status) => {
-        console.log("play-music:", status);
+        console.log("===== play-music subscribe =====");
+        console.log(status);
       });
 
     return () => {
