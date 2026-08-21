@@ -273,6 +273,7 @@ export const History: React.FC = () => {
                       style={{
                         fontSize: "17px",
                         lineHeight: 1.7,
+                        whiteSpace: "pre-line",
                       }}
                     >
                       {status.message}
